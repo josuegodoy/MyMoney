@@ -1,0 +1,67 @@
+﻿@page "/records/details"
+@using Microsoft.EntityFrameworkCore
+@using MyMoney.Models
+@using MyMoney.Data
+@inject IDbContextFactory<MyMoney.Data.MyMoneyContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>Record</h2>
+    <hr />
+    @if (record is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else
+    {
+        @foreach (var rec in record)
+        {
+            <MudCard>
+                <MudCardHeader>
+                    <CardHeaderAvatar>
+                        <MudAvatar>
+                            <MudIcon Icon=@(rec.Category.Icon) Size="Size.Medium" />
+                        </MudAvatar>
+                    </CardHeaderAvatar>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.body1">@rec.Description</MudText>
+                    </CardHeaderContent>
+                    <CardHeaderActions>
+                        <MudTooltip Text="Back to List">
+                            <MudIconButton Href="@($"records")" Icon="@Icons.Material.Filled.Close" Color="Color.Default" />
+                        </MudTooltip>
+                    </CardHeaderActions>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudChip T="string">  @rec.Category.Name </MudChip>
+                    <MudChip T="string">R$ @rec.Amount</MudChip>
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton Href="@($"records/edit?id={@rec.Id}")" Variant="Variant.Filled" Color="Color.Primary">Edit</MudButton>
+                    <MudButton Href="@($"records/delete?id={@rec.Id}")" Variant="Variant.Filled" Color="Color.Secondary">Delete</MudButton>
+                </MudCardActions>
+            </MudCard>
+        }
+    }
+</div>
+
+@code {
+    private MyMoneyContext context = default!;
+
+    private List<Record> record;
+
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        context = DbFactory.CreateDbContext();
+        record = await context.Record.Include(r => r.Category).ToListAsync(); ;
+
+
+    }
+}

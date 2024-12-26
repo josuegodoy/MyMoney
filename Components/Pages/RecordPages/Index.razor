@@ -1,0 +1,59 @@
+﻿@page "/records"
+@using Microsoft.EntityFrameworkCore
+@using MyMoney.Models
+@using MyMoney.Data
+@implements IAsyncDisposable
+@inject IDbContextFactory<MyMoney.Data.MyMoneyContext> DbFactory
+
+<PageTitle>Index</PageTitle>
+
+<h1 class="pt-3">Records</h1>
+
+
+<MudDataGrid Items="@records" Dense="true" Hover="true" Bordered="true" Striped="true">
+    <ToolBarContent>
+        <MudSpacer />
+        <MudButton Variant="Variant.Outlined" href="records/create">Create New</MudButton>
+    </ToolBarContent>
+    <Columns>
+        <TemplateColumn>
+            <CellTemplate>
+                <MudAvatar>
+                    <MudIcon Color="Color.Dark" Icon="@context.Item.Category.Icon" Size="Size.Medium" />
+                </MudAvatar>
+            </CellTemplate>
+        </TemplateColumn>
+        <PropertyColumn Title="Category" Property="records => records.Category.Name" />
+        <PropertyColumn Property="records => records.Description" />
+        <PropertyColumn Property="records => records.Amount" Format="C" />
+        <TemplateColumn Title="Transaction Date">
+            <CellTemplate>
+                <MudDatePicker Editable="false" Disabled @bind-Date="@context.Item.Date" />
+            </CellTemplate>
+        </TemplateColumn>
+        <TemplateColumn>
+            <CellTemplate>
+                <MudButton Href="@($"records/edit?id={context.Item.Id}")" Variant="Variant.Filled" Color="Color.Primary">Edit</MudButton>
+                <MudButton Href="@($"records/details?id={context.Item.Id}")" Variant="Variant.Filled" Color="Color.Primary">Details</MudButton>
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+</MudDataGrid>
+
+@code {
+    private MyMoneyContext context = default!;
+    private List<Record> records;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        context = DbFactory.CreateDbContext();
+        records = await context.Record.Include(r => r.Category).ToListAsync();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}

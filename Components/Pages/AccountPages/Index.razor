@@ -1,0 +1,49 @@
+﻿@page "/accounts"
+@using Microsoft.EntityFrameworkCore
+@using MyMoney.Models
+@using MyMoney.Data
+@implements IAsyncDisposable
+@inject IDbContextFactory<MyMoney.Data.MyMoneyContext> DbFactory
+
+<PageTitle>Accounts</PageTitle>
+
+<h1 class="pt-3">Accounts</h1>
+
+
+<MudDataGrid Items="context.Account" Dense="true" Hover="true" Bordered="true" Striped="true">
+    <ToolBarContent>
+        <MudSpacer />
+        <MudButton Variant="Variant.Outlined" style="float: right" href="accounts/create">Create New</MudButton>
+    </ToolBarContent>
+    <Columns>
+        <PropertyColumn Property="account => account.Name" Title="Name" />
+        <PropertyColumn Property="account => account.InitialBalance" Title="Initial Balance" Format="C" />
+        <PropertyColumn Property="account => account.CurrentBalance" Title="Current Balance" Format="C" />
+             <TemplateColumn Title="Color">
+            <CellTemplate>
+                <MudChip T="string" Style="@($"background-color:{@context.Item.Color};")" Color="Color.Dark">@context.Item.Name</MudChip>
+            </CellTemplate>
+            
+
+        </TemplateColumn>
+        <TemplateColumn>
+            <CellTemplate>
+                <MudButton Href="@($"accounts/edit?id={context.Item.Id}")" Variant="Variant.Filled" Color="Color.Primary">Edit</MudButton>
+                <MudButton Href="@($"accounts/details?id={context.Item.Id}")" Variant="Variant.Filled" Color="Color.Primary">Details</MudButton>
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+</MudDataGrid>
+
+@code {
+    private MyMoneyContext context = default!;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+
+}

@@ -1,0 +1,40 @@
+﻿@page "/currencies"
+@using Microsoft.EntityFrameworkCore
+@using MyMoney.Models
+@using MyMoney.Data
+@implements IAsyncDisposable
+@inject IDbContextFactory<MyMoney.Data.MyMoneyContext> DbFactory
+
+<PageTitle>Currencies</PageTitle>
+
+<h1 class="pt-3">Currencies</h1>
+
+<MudDataGrid Items="context.Currency" Dense="true" Hover="true" Bordered="true" Striped="true">
+    <ToolBarContent>
+        <MudSpacer />
+        <MudButton Variant="Variant.Outlined" style="float: right" href="currencies/create">Create New</MudButton>
+    </ToolBarContent>
+    <Columns>
+    <PropertyColumn Property="currency => currency.Name" />
+    <PropertyColumn Property="currency => currency.Code" />
+    <PropertyColumn Property="currency => currency.Symbol" />
+    <PropertyColumn Property="currency => currency.PluralName" />
+        <TemplateColumn>
+            <CellTemplate>
+                <MudButton Href="@($"currencies/edit?id={context.Item.Id}")" Variant="Variant.Filled" Color="Color.Primary">Edit</MudButton>
+                <MudButton Href="@($"currencies/details?id={context.Item.Id}")" Variant="Variant.Filled" Color="Color.Primary">Details</MudButton>
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+</MudDataGrid>
+
+@code {
+    private MyMoneyContext context = default!;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}

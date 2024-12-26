@@ -1,0 +1,65 @@
+﻿@page "/records/create"
+@using Microsoft.EntityFrameworkCore
+@using MyMoney.Models
+@inject IDbContextFactory<MyMoney.Data.MyMoneyContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create</PageTitle>
+
+<h1>Create</h1>
+
+<h2>Record</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="Record" OnValidSubmit="AddRecord" FormName="create" Enhance>
+            <MudGrid>
+                <MudItem xs="12" sm="7">
+                    <MudCard>
+                        <MudCardContent>
+                            <MudTextField Label="Name" @bind-Value="Record.Name" />
+                            <MudDatePicker Label="Transaction Date" Editable="true" @bind-Date="Record.Date" Placeholder="Select Date" />
+                            <MudSelect T="int" Label="Category" For="@(() => Record.CategoryId)">
+                                <MudSelectItem T="int" Value=0 Disabled>Select Category</MudSelectItem>
+                                @foreach (var category in categories)
+                                {
+                                    <MudSelectItem T="int" Value="@category.Id">@category.Name</MudSelectItem>
+                                }
+                            </MudSelect>
+                            <MudNumericField Label="Amount" @bind-Value="Record.Amount" Format="C" />
+                            <MudTextField Label="Description" @bind-Value="Record.Description" />
+                        </MudCardContent>
+                        <MudCardActions>
+                            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Save</MudButton>
+                        </MudCardActions>
+                    </MudCard>
+                </MudItem>
+            </MudGrid>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/records">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private Record Record { get; set; } = new();
+    private List<Category> categories = new List<Category>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        categories = await context.Category.ToListAsync();
+    }
+
+    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task AddRecord()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Record.Add(Record);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/records");
+    }
+}

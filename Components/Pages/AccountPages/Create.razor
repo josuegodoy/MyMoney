@@ -1,0 +1,48 @@
+﻿@page "/accounts/create"
+@using Microsoft.EntityFrameworkCore
+@using MyMoney.Models
+@inject IDbContextFactory<MyMoney.Data.MyMoneyContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create</PageTitle>
+
+<h1>Create</h1>
+
+<h2>Account</h2>
+<hr />
+<EditForm method="post" Model="Account" OnValidSubmit="AddAccount" FormName="edit" Enhance>
+    <MudGrid>
+        <MudItem xs="12" sm="7">
+            <MudCard>
+                <MudCardContent>
+                    <input type="hidden" name="Account.Id" value="@Account.Id" />
+                    <MudTextField id="name" Label="Account name" @bind-Value="Account.Name" />
+                    <MudNumericField Variant="Variant.Text" Label="Initial balance" @bind-Value="Account.InitialBalance" />
+                    <MudNumericField Variant="Variant.Text" Label="Current balance" @bind-Value="Account.CurrentBalance" />
+                    <MudTextField Label="Color" @bind-Value="Account.Color" Style="@($"color: {Account.Color};")" InputType="InputType.Color" />
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Save</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+</EditForm>
+
+<div>
+    <a href="/accounts">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private Account Account { get; set; } = new();
+
+    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task AddAccount()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Account.Add(Account);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/accounts");
+    }
+}
