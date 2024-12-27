@@ -9,10 +9,10 @@
 
 <h1 class="pt-3">Currencies</h1>
 
-<MudDataGrid Items="context.Currency" Dense="true" Hover="true" Bordered="true" Striped="true">
+<MudDataGrid Items="context.Currency" Dense="true" Hover="true" Bordered="true" Style="--mud-palette-surface: transparent">
     <ToolBarContent>
         <MudSpacer />
-        <MudButton Variant="Variant.Outlined" style="float: right" href="currencies/create">Create New</MudButton>
+        <MudIconButton Variant="Variant.Filled" style="float: right" href="currencies/create" Color="Color.Success" Icon="@Icons.Material.Filled.Add"></MudIconButton>
     </ToolBarContent>
     <Columns>
     <PropertyColumn Property="currency => currency.Name" />
@@ -21,8 +21,8 @@
     <PropertyColumn Property="currency => currency.PluralName" />
         <TemplateColumn>
             <CellTemplate>
-                <MudButton Href="@($"currencies/edit?id={context.Item.Id}")" Variant="Variant.Filled" Color="Color.Primary">Edit</MudButton>
-                <MudButton Href="@($"currencies/details?id={context.Item.Id}")" Variant="Variant.Filled" Color="Color.Primary">Details</MudButton>
+                <MudIconButton Href="@($"currencies/edit?id={context.Item.Id}")" Variant="Variant.Filled" Color="Color.Primary" Icon="@Icons.Material.Filled.Edit"></MudIconButton>
+                <MudIconButton Href="@($"currencies/details?id={context.Item.Id}")" Variant="Variant.Filled" Color="Color.Primary" Icon="@Icons.Material.Filled.Pages"></MudIconButton>
             </CellTemplate>
         </TemplateColumn>
     </Columns>

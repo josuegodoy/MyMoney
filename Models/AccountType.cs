@@ -8,4 +8,6 @@ public class AccountType
     public DateTime? UpdatedAt { get; set; }
     public DateTime? DeletedAt { get; set; }
 
+    public ICollection<Account>? Accounts { get; } = new List<Account>();
+
 }

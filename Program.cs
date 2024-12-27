@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MudBlazor;
 using MudBlazor.Services;
 using MyMoney.Components;
 using MyMoney.Data;
@@ -7,7 +8,18 @@ var builder = WebApplication.CreateBuilder(args);
 var DefaultConnection = builder.Configuration["MyMoney:DefaultConnection"];
 
 // Add MudBlazor services
-builder.Services.AddMudServices();
+builder.Services.AddMudServices(config =>
+{
+    config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.TopRight;
+
+    config.SnackbarConfiguration.PreventDuplicates = false;
+    config.SnackbarConfiguration.NewestOnTop = false;
+    config.SnackbarConfiguration.ShowCloseIcon = false;
+    config.SnackbarConfiguration.VisibleStateDuration = 1500;
+    config.SnackbarConfiguration.HideTransitionDuration = 200;
+    config.SnackbarConfiguration.ShowTransitionDuration = 200;
+    config.SnackbarConfiguration.SnackbarVariant = Variant.Outlined;
+});
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
@@ -40,7 +52,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
     app.UseMigrationsEndPoint();
 }
-
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 app.UseHttpsRedirection();
 
 app.UseStaticFiles();

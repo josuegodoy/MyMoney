@@ -14,12 +14,16 @@ public class Account
     [Column(TypeName = "decimal(18, 2)")]
     public decimal CurrentBalance { get; set; } = 0;
     public string? Color { get; set; }
-    public DateTime CreatedAt { get; set; } 
+    public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
     public DateTime? DeletedAt { get; set; }
-    public virtual User? User { get; set; }
-    public virtual AccountType? AccountType { get; set; }
-    public virtual Currency? Currency { get; set; }
+    public int UserId { get; set; }
+    public int AccountTypeId { get; set; }
+    public int CurrencyId { get; set; }
+    public User User { get; set; }
+    public AccountType AccountType { get; set; }
+    public Currency Currency { get; set; }
 
-    ICollection<Record> records { get; set; }
+    public virtual ICollection<Record> IncomeRecords { get; set; }
+    public virtual ICollection<Record> ExpenseRecords { get; set; }
 }

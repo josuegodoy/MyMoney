@@ -47,6 +47,35 @@ namespace MyMoney.Data
                 .HasForeignKey(r => r.CategoryId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<Record>()
+                .HasOne(r => r.FromAccount)
+                .WithMany(c => c.ExpenseRecords)
+                .HasForeignKey(r => r.FromAccountId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Record>()
+               .HasOne(r => r.ToAccount)
+               .WithMany(c => c.IncomeRecords)
+               .HasForeignKey(r => r.ToAccountId)
+               .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Account>()
+                .HasOne(r => r.User)
+                .WithMany(c => c.Accounts)
+                .HasForeignKey(r => r.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Account>()
+               .HasOne(r => r.Currency)
+               .WithMany(c => c.Accounts)
+               .HasForeignKey(r => r.CurrencyId)
+               .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Account>()
+               .HasOne(r => r.AccountType)
+               .WithMany(c => c.Accounts)
+               .HasForeignKey(r => r.AccountTypeId)
+               .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

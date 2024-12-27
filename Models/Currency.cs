@@ -7,8 +7,9 @@ public class Currency
     public string? Code { get; set; }
     public string? Symbol { get; set; }
     public string? PluralName { get; set; }
-    public DateTime CreatedAt { get; set; } 
+    public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
     public DateTime? DeletedAt { get; set; }
-    public virtual ICollection<Account>? Accounts { get; set; }
+    public ICollection<Account> Accounts { get; set; }
+
 }

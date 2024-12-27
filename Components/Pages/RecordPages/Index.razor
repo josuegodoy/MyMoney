@@ -10,22 +10,16 @@
 <h1 class="pt-3">Records</h1>
 
 
-<MudDataGrid Items="@records" Dense="true" Hover="true" Bordered="true" Striped="true">
+<MudDataGrid Items="@records" Dense="true" Hover="true" Bordered="true" Style="--mud-palette-surface: transparent">
     <ToolBarContent>
         <MudSpacer />
-        <MudButton Variant="Variant.Outlined" href="records/create">Create New</MudButton>
+        <MudIconButton Variant="Variant.Filled" href="records/create" Color="Color.Success" Icon="@Icons.Material.Filled.Add"></MudIconButton>
     </ToolBarContent>
     <Columns>
-        <TemplateColumn>
-            <CellTemplate>
-                <MudAvatar>
-                    <MudIcon Color="Color.Dark" Icon="@context.Item.Category.Icon" Size="Size.Medium" />
-                </MudAvatar>
-            </CellTemplate>
-        </TemplateColumn>
         <PropertyColumn Title="Category" Property="records => records.Category.Name" />
         <PropertyColumn Property="records => records.Description" />
         <PropertyColumn Property="records => records.Amount" Format="C" />
+        <PropertyColumn Title="Account" Property="records => records.FromAccount.Name" />
         <TemplateColumn Title="Transaction Date">
             <CellTemplate>
                 <MudDatePicker Editable="false" Disabled @bind-Date="@context.Item.Date" />
@@ -33,8 +27,8 @@
         </TemplateColumn>
         <TemplateColumn>
             <CellTemplate>
-                <MudButton Href="@($"records/edit?id={context.Item.Id}")" Variant="Variant.Filled" Color="Color.Primary">Edit</MudButton>
-                <MudButton Href="@($"records/details?id={context.Item.Id}")" Variant="Variant.Filled" Color="Color.Primary">Details</MudButton>
+                <MudIconButton Href="@($"records/edit?id={context.Item.Id}")" Variant="Variant.Filled" Color="Color.Primary" Icon="@Icons.Material.Filled.Edit"></MudIconButton>
+                <MudIconButton Href="@($"records/details?id={context.Item.Id}")" Variant="Variant.Filled" Color="Color.Primary" Icon="@Icons.Material.Filled.Pages"></MudIconButton>
             </CellTemplate>
         </TemplateColumn>
     </Columns>
@@ -53,6 +47,7 @@
     {
         context = DbFactory.CreateDbContext();
         records = await context.Record.Include(r => r.Category).ToListAsync();
+        records = await context.Record.Include(r => r.FromAccount).ToListAsync();
     }
 
     public async ValueTask DisposeAsync() => await context.DisposeAsync();

@@ -16,7 +16,10 @@ namespace MyMoney.Models
         public DateTime? UpdatedAt { get; set; }
         public DateTime? DeletedAt { get; set; }
         public virtual User? User { get; set; }
-        public virtual Account? FromAccount { get; set; }
+        public int FromAccountId { get; set; }
+        public virtual Account FromAccount { get; set; }
+
+        public int? ToAccountId { get; set; }
         public virtual Account? ToAccount { get; set; }
 
         // Relationship with Category

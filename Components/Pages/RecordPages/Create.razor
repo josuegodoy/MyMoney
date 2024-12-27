@@ -3,8 +3,9 @@
 @using MyMoney.Models
 @inject IDbContextFactory<MyMoney.Data.MyMoneyContext> DbFactory
 @inject NavigationManager NavigationManager
+@inject ISnackbar SnackbarService
 
-<PageTitle>Create</PageTitle>
+<PageTitle>Create Record</PageTitle>
 
 <h1>Create</h1>
 
@@ -19,14 +20,21 @@
                         <MudCardContent>
                             <MudTextField Label="Name" @bind-Value="Record.Name" />
                             <MudDatePicker Label="Transaction Date" Editable="true" @bind-Date="Record.Date" Placeholder="Select Date" />
-                            <MudSelect T="int" Label="Category" For="@(() => Record.CategoryId)">
-                                <MudSelectItem T="int" Value=0 Disabled>Select Category</MudSelectItem>
+                            <MudSelect T="Int32" Label="Category" @bind-Value="Record.CategoryId">
+                                <MudSelectItem T="Int32" Value="-1" Disabled>Select Category</MudSelectItem>
                                 @foreach (var category in categories)
                                 {
-                                    <MudSelectItem T="int" Value="@category.Id">@category.Name</MudSelectItem>
+                                    <MudSelectItem T="Int32" Value="@category.Id">@category.Name</MudSelectItem>
                                 }
                             </MudSelect>
-                            <MudNumericField Label="Amount" @bind-Value="Record.Amount" Format="C" />
+                            <MudSelect T="Int32" Label="Account" @bind-Value="Record.FromAccountId">
+                                <MudSelectItem T="int" Value="0" Disabled>Select Account</MudSelectItem>
+                                @foreach (var account in accounts)
+                                {
+                                    <MudSelectItem T="Int32" Value="@account.Id">@account.Name</MudSelectItem>
+                                }
+                            </MudSelect>
+                            <MudNumericField Label="Amount" @bind-Value="Record.Amount" />
                             <MudTextField Label="Description" @bind-Value="Record.Description" />
                         </MudCardContent>
                         <MudCardActions>
@@ -45,18 +53,36 @@
 
 @code {
     [SupplyParameterFromForm]
-    private Record Record { get; set; } = new();
+    private Record Record { get; set; } = new() { CategoryId = -1 };
     private List<Category> categories = new List<Category>();
+    private List<Account> accounts = new List<Account>();
+    private List<User> users = new List<User>();
 
     protected override async Task OnInitializedAsync()
     {
         using var context = DbFactory.CreateDbContext();
         categories = await context.Category.ToListAsync();
+        accounts = await context.Account.ToListAsync();
+        users = await context.User.ToListAsync();
     }
 
     // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
     private async Task AddRecord()
     {
+        if (Record.CategoryId == -1)
+        {
+            SnackbarService.Add
+            (
+            @<div>No category selected</div>, Severity.Info
+            );
+            return;
+        }
+
+        if (Record.ToAccountId == -1)
+        {
+            Record.ToAccountId = 0;
+        }
+
         using var context = DbFactory.CreateDbContext();
         context.Record.Add(Record);
         await context.SaveChangesAsync();

@@ -12,13 +12,13 @@
 <div>
     <h2>Record</h2>
     <hr />
-    @if (record is null)
+    @if (records is null)
     {
         <p><em>Loading...</em></p>
     }
     else
     {
-        @foreach (var rec in record)
+        @foreach (var rec in records)
         {
             <MudCard>
                 <MudCardHeader>
@@ -28,7 +28,8 @@
                         </MudAvatar>
                     </CardHeaderAvatar>
                     <CardHeaderContent>
-                        <MudText Typo="Typo.body1">@rec.Description</MudText>
+                        <MudText Typo="Typo.body1">@rec.Name</MudText>
+                        <MudText Typo="Typo.body1">@rec.Description</MudText><hr />
                     </CardHeaderContent>
                     <CardHeaderActions>
                         <MudTooltip Text="Back to List">
@@ -38,6 +39,7 @@
                 </MudCardHeader>
                 <MudCardContent>
                     <MudChip T="string">  @rec.Category.Name </MudChip>
+                    <MudChip T="string" Style="@($"background-color:{@rec.FromAccount.Color};")" Color="Color.Dark">@rec.FromAccount.Name</MudChip>
                     <MudChip T="string">R$ @rec.Amount</MudChip>
                 </MudCardContent>
                 <MudCardActions>
@@ -52,7 +54,7 @@
 @code {
     private MyMoneyContext context = default!;
 
-    private List<Record> record;
+    private List<Record> records;
 
     [SupplyParameterFromQuery]
     private int Id { get; set; }
@@ -60,7 +62,8 @@
     protected override async Task OnInitializedAsync()
     {
         context = DbFactory.CreateDbContext();
-        record = await context.Record.Include(r => r.Category).ToListAsync(); ;
+        records = await context.Record.Include(r => r.Category).ToListAsync();
+        records = await context.Record.Include(r => r.FromAccount).ToListAsync();
 
 
     }

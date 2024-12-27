@@ -9,10 +9,10 @@
 
 <h1 class="pt-3">Users</h1>
 
-<MudDataGrid Items="context.User" Dense="true" Hover="true" Bordered="true" Striped="true">
+<MudDataGrid Items="context.User" Dense="true" Hover="true" Bordered="true" Style="--mud-palette-surface: transparent">
     <ToolBarContent>
         <MudSpacer />
-        <MudButton Variant="Variant.Outlined" href="users/create">Create New</MudButton>
+        <MudIconButton Variant="Variant.Filled" href="users/create" Color="Color.Success" Icon="@Icons.Material.Filled.Add"></MudIconButton>
     </ToolBarContent>
     <Columns>
     <PropertyColumn Property="user => user.Name" />
@@ -21,8 +21,8 @@
     <PropertyColumn Property="user => user.RememberToken" />
         <TemplateColumn>
             <CellTemplate>
-                <MudButton Href="@($"users/edit?id={context.Item.Id}")" Variant="Variant.Filled" Color="Color.Primary">Edit</MudButton>
-                <MudButton Href="@($"users/details?id={context.Item.Id}")" Variant="Variant.Filled" Color="Color.Primary">Details</MudButton>
+                <MudIconButton Href="@($"users/edit?id={context.Item.Id}")" Variant="Variant.Filled" Color="Color.Primary" Icon="@Icons.Material.Filled.Edit"></MudIconButton>
+                <MudIconButton Href="@($"users/details?id={context.Item.Id}")" Variant="Variant.Filled" Color="Color.Primary" Icon="@Icons.Material.Filled.Pages"></MudIconButton>
                 
             </CellTemplate>
         </TemplateColumn>
