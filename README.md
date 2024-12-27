@@ -72,7 +72,7 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## Contact
 
-For any inquiries, feel free to reach out to [devjosue@icloud.com](mailto:devjosue@icloud.com).
+For any inquiries, feel free to reach out to [devgodoy@icloud.com](mailto:devgodoy@icloud.com).
 
 ---
 
