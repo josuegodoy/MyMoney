@@ -27,6 +27,10 @@
                                     <MudSelectItem T="Int32" Value="@category.Id">@category.Name</MudSelectItem>
                                 }
                             </MudSelect>
+                            <MudRadioGroup @bind-Value="Record.Type">
+                                <MudRadio Value="@("Income")">Income</MudRadio>
+                                <MudRadio Value="@("Expense")">Expense</MudRadio>
+                            </MudRadioGroup>
                             <MudSelect T="Int32" Label="Account" @bind-Value="Record.FromAccountId">
                                 <MudSelectItem T="int" Value="0" Disabled>Select Account</MudSelectItem>
                                 @foreach (var account in accounts)
@@ -85,6 +89,13 @@
 
         using var context = DbFactory.CreateDbContext();
         context.Record.Add(Record);
+        var account = await context.Account.FindAsync(Record.FromAccountId);
+        if (account != null)
+        {
+            account.CurrentBalance += Record.Type == "Income"
+                ? Record.Amount // Incrementa para receitas
+                : -Record.Amount; // Decrementa para despesas
+        }
         await context.SaveChangesAsync();
         NavigationManager.NavigateTo("/records");
     }

@@ -18,7 +18,15 @@
     <Columns>
         <PropertyColumn Title="Category" Property="records => records.Category.Name" />
         <PropertyColumn Property="records => records.Description" />
-        <PropertyColumn Property="records => records.Amount" Format="C" />
+        <TemplateColumn Title="Transaction Date">
+            <CellTemplate>
+                @if (context.Item.Type == "Expense"){
+                <MudText Style="color: red"> @context.Item.Amount </MudText>
+                }else{
+                    <MudText Style="color: olivedrab"> @context.Item.Amount </MudText>
+                }
+            </CellTemplate>
+        </TemplateColumn>
         <PropertyColumn Title="Account" Property="records => records.FromAccount.Name" />
         <TemplateColumn Title="Transaction Date">
             <CellTemplate>
@@ -46,8 +54,11 @@
     protected override async Task OnInitializedAsync()
     {
         context = DbFactory.CreateDbContext();
-        records = await context.Record.Include(r => r.Category).ToListAsync();
-        records = await context.Record.Include(r => r.FromAccount).ToListAsync();
+        records = await context.Record
+        .Include(r => r.Category) // Inclui Category
+        .Include(r => r.User)     // Inclui User, se existir
+        .Include(r => r.FromAccount)
+        .ToListAsync();
     }
 
     public async ValueTask DisposeAsync() => await context.DisposeAsync();

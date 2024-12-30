@@ -1,21 +1,81 @@
 ﻿@page "/"
+@using Microsoft.EntityFrameworkCore
+@using MyMoney.Models
+@using MyMoney.Data
+@implements IAsyncDisposable
+@inject IDbContextFactory<MyMoney.Data.MyMoneyContext> DbFactory
 
 <PageTitle>Home</PageTitle>
 
-<div>
-    <MudChart ChartType="ChartType.StackedBar" ChartSeries="@Series" @bind-SelectedIndex="Index" LegendPosition="@LegendPosition" XAxisLabels="@XAxisLabels" Width="100%" Height="350px"></MudChart>
-</div>
+@if (categorySummaries.Count > 0)
+{
+    @* <MudChart ChartType="ChartType.Pie" InputData="@data.ToArray()" InputLabels="@labels.ToArray()" Width="300px" Height="300px" /> *@
+
+    <h3>Category Totals</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Total Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var summary in categorySummaries)
+            {
+                <tr>
+                    <td>@summary.CategoryName</td>
+                    <td>@summary.TotalAmount</td> <!-- Formata como moeda -->
+                </tr>
+            }
+        </tbody>
+    </table>
+
+}
+else
+{
+    <p>No records found.</p>
+}
 
 @code {
-    private int Index = -1; //default value cannot be 0 -> first selectedindex is 0.
+    private MyMoneyContext context = default!;
+    private List<Record> records;
+    private List<CategorySummary> categorySummaries = new();
+    private List<double> data = new();
+    private List<string> labels = new();
 
-    private Position LegendPosition = Position.Bottom;
-
-    public List<ChartSeries> Series = new List<ChartSeries>()
+    protected override void OnInitialized()
     {
-        new ChartSeries() { Name = "Moradia", Data = new double[] { 40, 20, 25, 27, 46, 60, 48, 80, 15 } },
-        new ChartSeries() { Name = "Restaurante", Data = new double[] { 19, 24, 35, 13, 28, 15, 13, 16, 31 } },
-        new ChartSeries() { Name = "Contas de Consumo", Data = new double[] { 8, 6, 11, 13, 4, 16, 10, 16, 18 } },
-    };
-    public string[] XAxisLabels = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep" };
+        context = DbFactory.CreateDbContext();
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        context = DbFactory.CreateDbContext();
+        records = await context.Record
+        .Include(r => r.Category) // Inclui Category
+        .Include(r => r.User)     // Inclui User, se existir
+        .Include(r => r.FromAccount)
+        .ToListAsync();
+
+        // Consulta para agrupar e somar valores por categoria
+        categorySummaries = await context.Record
+            .Include(r => r.Category) // Inclui os dados da Category
+            .GroupBy(r => r.Category.Name) // Agrupa por nome da categoria
+            .Select(g => new CategorySummary
+                {
+                    CategoryName = g.Key,
+                    TotalAmount = g.Sum(r => r.Amount)
+
+                })
+            .ToListAsync();
+
+    }
+
+    private class CategorySummary
+    {
+        public string CategoryName { get; set; } = string.Empty;
+        public decimal TotalAmount { get; set; }
+    }
+
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
 }

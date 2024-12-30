@@ -73,6 +73,15 @@
     {
         using var context = DbFactory.CreateDbContext();
         context.Record.Remove(record!);
+
+        // Ajustar o saldo da conta
+        var account = await context.Account.FindAsync(record!.ToAccountId);
+        if (account != null)
+        {
+            account.CurrentBalance += record.Type == "Income"
+                ? -record.Amount
+                : record.Amount;
+        }
         await context.SaveChangesAsync();
         NavigationManager.NavigateTo("/records");
     }

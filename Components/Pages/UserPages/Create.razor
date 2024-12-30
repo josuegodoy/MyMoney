@@ -17,7 +17,7 @@
                 <MudCardContent>
                     <MudTextField Label="User name" @bind-Value="User.Name" Class="mt-3" />
                     <MudTextField Label="E-mail" @bind-Value="User.Email" Class="mt-3" />
-                    <MudTextField Label="Password" @bind-Value="User.Password" InputType="@PasswordInput" Class="mt-3" />
+                    <MudTextField Label="Password" @bind-Value="User.Password" InputType="@PasswordInput" Class="mt-3" /> <MudIconButton Icon="@PasswordInputIcon" OnClick="() => (isShow) = !isShow"></MudIconButton>
                 </MudCardContent>
                 <MudCardActions>
                     <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Save</MudButton>

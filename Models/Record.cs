@@ -12,6 +12,7 @@ namespace MyMoney.Models
         [Column(TypeName = "decimal(18, 2)")]
         public decimal Amount { get; set; } = 0;
         public string Description { get; set; } = string.Empty;
+        public string Type { get; set; }
         public DateTime CreatedAt { get; set; } 
         public DateTime? UpdatedAt { get; set; }
         public DateTime? DeletedAt { get; set; }
