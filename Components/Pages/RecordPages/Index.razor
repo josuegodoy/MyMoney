@@ -5,12 +5,12 @@
 @implements IAsyncDisposable
 @inject IDbContextFactory<MyMoney.Data.MyMoneyContext> DbFactory
 
-<PageTitle>Index</PageTitle>
+<PageTitle>Records</PageTitle>
 
 <h1 class="pt-3">Records</h1>
 
 
-<MudDataGrid Items="@records" Dense="true" Hover="true" Bordered="true" Style="--mud-palette-surface: transparent">
+<MudDataGrid Items="@records" Dense="true" Hover="true" Bordered="true" Style="--mud-palette-surface: transparent" SortMode="SortMode.Single">
     <ToolBarContent>
         <MudSpacer />
         <MudIconButton Variant="Variant.Filled" href="records/create" Color="Color.Success" Icon="@Icons.Material.Filled.Add"></MudIconButton>
@@ -18,7 +18,7 @@
     <Columns>
         <PropertyColumn Title="Category" Property="records => records.Category.Name" />
         <PropertyColumn Property="records => records.Description" />
-        <TemplateColumn Title="Transaction Date">
+        <TemplateColumn Title="Amount">
             <CellTemplate>
                 @if (context.Item.Type == "Expense"){
                 <MudText Style="color: red"> @context.Item.Amount </MudText>
@@ -28,7 +28,7 @@
             </CellTemplate>
         </TemplateColumn>
         <PropertyColumn Title="Account" Property="records => records.FromAccount.Name" />
-        <TemplateColumn Title="Transaction Date">
+        <TemplateColumn Title="Transaction Date" SortBy="@(records => records.Date)" Sortable="true">
             <CellTemplate>
                 <MudDatePicker Editable="false" Disabled @bind-Date="@context.Item.Date" />
             </CellTemplate>

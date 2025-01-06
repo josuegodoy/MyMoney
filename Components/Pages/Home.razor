@@ -9,26 +9,47 @@
 
 @if (categorySummaries.Count > 0)
 {
-    @* <MudChart ChartType="ChartType.Pie" InputData="@data.ToArray()" InputLabels="@labels.ToArray()" Width="300px" Height="300px" /> *@
+    string[] stringArray = data
+    .Select(d => d.ToString("F2")) // Formata com 2 casas decimais, se necessário
+    .ToArray();
 
-    <h3>Category Totals</h3>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Category</th>
-                <th>Total Amount</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var summary in categorySummaries)
-            {
-                <tr>
-                    <td>@summary.CategoryName</td>
-                    <td>@summary.TotalAmount</td> <!-- Formata como moeda -->
-                </tr>
-            }
-        </tbody>
-    </table>
+    var combined = labels.Zip(stringArray, (a, b) => $"{a} - {b}").ToArray();
+
+
+
+    <MudGrid>
+        <MudItem xs="2">
+            <MudCard Outlined="true">
+                <MudCardHeader>
+                    <CardHeaderAvatar>
+                        <MudIcon Icon="@Icons.Material.Filled.ArrowDownward" Size="Size.Large" Color="Color.Success" />
+                    </CardHeaderAvatar>
+                    <CardHeaderContent>
+                        <MudText>Incomes</MudText>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudText Style="float: right" Typo="Typo.body1">R$ @dataType[0]</MudText>
+                </MudCardContent>
+            </MudCard>
+            <MudCard Outlined="true">
+                <MudCardHeader>
+                    <CardHeaderAvatar>
+                        <MudIcon Icon="@Icons.Material.Filled.ArrowUpward" Size="Size.Large" Color="Color.Error" />
+                    </CardHeaderAvatar>
+                    <CardHeaderContent>
+                        <MudText>Expenses</MudText>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudText Style="float: right" Typo="Typo.body1">R$ @dataType[1]</MudText>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="6">
+            <MudChart ChartType="ChartType.Pie" LegendPosition="Position.Right" InputData="@data.ToArray()" InputLabels="@combined" Width="300px" Height="300px" />
+        </MudItem>
+    </MudGrid>
 
 }
 else
@@ -40,8 +61,11 @@ else
     private MyMoneyContext context = default!;
     private List<Record> records;
     private List<CategorySummary> categorySummaries = new();
+    private List<TypeSummary> typeSummaries = new();
     private List<double> data = new();
     private List<string> labels = new();
+    private List<string> labelsType = new();
+    private List<double> dataType = new();
 
     protected override void OnInitialized()
     {
@@ -68,11 +92,36 @@ else
                 })
             .ToListAsync();
 
+        typeSummaries = records
+        .GroupBy(r => r.Type)
+        .Select(g => new TypeSummary
+            {
+                Type = g.Key,
+                TotalAmount = g.Sum(r => r.Amount)
+            })
+        .ToList();
+
+        foreach (var summary in categorySummaries)
+        {
+            data.Add((double)summary.TotalAmount);
+            labels.Add(summary.CategoryName);
+        }
+        foreach (var typeSummary in typeSummaries)
+        {
+            labelsType.Add(typeSummary.Type);
+            dataType.Add((double)typeSummary.TotalAmount);
+        }
     }
 
     private class CategorySummary
     {
         public string CategoryName { get; set; } = string.Empty;
+        public decimal TotalAmount { get; set; }
+    }
+
+    public class TypeSummary
+    {
+        public string Type { get; set; } = string.Empty;
         public decimal TotalAmount { get; set; }
     }
 
