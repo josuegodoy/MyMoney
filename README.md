@@ -45,7 +45,7 @@ Welcome to MyMoney! This project is designed to provide an intuitive and efficie
 2. Set up the PostgreSQL database:
 
    - Create a database in your Neon account.
-   - Apply the database schema from the `schema.sql` file in the repository.
+   - Apply the initial migration with Package Manager Console [HowTo](https://learn.microsoft.com/pt-br/ef/core/managing-schemas/migrations/managing?tabs=vs#add-a-migration).
 
 3. Configure the application:
 
