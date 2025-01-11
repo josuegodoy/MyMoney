@@ -1,10 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using MyMoney.Models;
-using System.Reflection.Metadata;
 
 namespace MyMoney.Data
 {
-    public class MyMoneyContext : DbContext
+    public class MyMoneyContext : IdentityDbContext<IdentityUser>
     {
         public MyMoneyContext(DbContextOptions<MyMoneyContext> options)
             : base(options)

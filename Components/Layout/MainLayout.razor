@@ -1,5 +1,12 @@
-﻿@inherits LayoutComponentBase
+﻿@using Microsoft.AspNetCore.Identity;
+@using MyMoney
+@using MyMoney.Components.Layout
+@using MyMoney.Components
+@using MyMoney.Services
+@using Microsoft.EntityFrameworkCore
+@inherits LayoutComponentBase
 @inject ISnackbar Snackbar
+@inject ILogger<MainLayout> Logger
 
 @* Required *@
 <MudThemeProvider Theme="@_theme" IsDarkMode="_isDarkMode" />
@@ -16,6 +23,14 @@
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
         <MudText Typo="Typo.h5" Class="ml-3">MyMoney</MudText>
         <MudSpacer />
+        @if (isAuthenticated)
+        {
+            <MudButton Color="Color.Secondary" OnClick="@Logout">Logout</MudButton>
+        }
+        else
+        {
+            <MudButton Color="Color.Secondary" OnClick="@NavigateToLogin">Login</MudButton>
+        } 
         <MudIconButton Icon="@(DarkLightModeButtonIcon)" Color="Color.Inherit" OnClick="@DarkModeToggle" />
     </MudAppBar>
     <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
@@ -30,9 +45,21 @@
     private bool _drawerOpen = true;
     private bool _isDarkMode = true;
     private MudTheme? _theme = null;
+    private bool isAuthenticated;
 
-    protected override void OnInitialized()
+    [Inject]
+    private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
+
+    [Inject]
+    private NavigationManager NavigationManager { get; set; } = default!;
+
+    [Inject]
+    private SignInManager<IdentityUser> SignInManager { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
     {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        isAuthenticated = authState.User.Identity?.IsAuthenticated ?? false;
         base.OnInitialized();
 
         _theme = new()
@@ -42,6 +69,26 @@
                 LayoutProperties = new LayoutProperties()
             };
     }
+
+    private async Task Logout()
+    {
+        try
+        {
+            await SignInManager.SignOutAsync();
+            NavigationManager.NavigateTo("/");
+        }
+
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Erro ao realizar logout.");
+        }
+    }
+
+    private void NavigateToLogin()
+    {
+        NavigationManager.NavigateTo("/login");
+    }
+
 
 
     private void DrawerToggle()

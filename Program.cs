@@ -1,64 +1,111 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using MudBlazor;
 using MudBlazor.Services;
 using MyMoney.Components;
 using MyMoney.Data;
+using Microsoft.AspNetCore.Components.Authorization;
+using MyMoney.Components.Account;
 
 var builder = WebApplication.CreateBuilder(args);
-var DefaultConnection = builder.Configuration["MyMoney:DefaultConnection"];
 
-// Add MudBlazor services
+// Validação da configuração
+// Configuração do Razor e Blazor
+builder.Services.AddRazorComponents()
+    .AddInteractiveServerComponents().AddHubOptions(options =>
+    {
+        options.ClientTimeoutInterval = TimeSpan.FromSeconds(60);
+        options.HandshakeTimeout = TimeSpan.FromSeconds(30);
+    });
+builder.Services.AddQuickGridEntityFrameworkAdapter();
+
+var DefaultConnection = builder.Configuration["MyMoney:DefaultConnection"];
+if (string.IsNullOrEmpty(DefaultConnection))
+{
+    throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+}
+
+// Configuração do DbContext
+builder.Services.AddDbContextFactory<MyMoneyContext>(options =>
+    options.UseNpgsql(DefaultConnection));
+
+// Configuração do MudBlazor
 builder.Services.AddMudServices(config =>
 {
     config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.TopRight;
-
     config.SnackbarConfiguration.PreventDuplicates = false;
-    config.SnackbarConfiguration.NewestOnTop = false;
-    config.SnackbarConfiguration.ShowCloseIcon = false;
     config.SnackbarConfiguration.VisibleStateDuration = 1500;
-    config.SnackbarConfiguration.HideTransitionDuration = 200;
-    config.SnackbarConfiguration.ShowTransitionDuration = 200;
-    config.SnackbarConfiguration.SnackbarVariant = Variant.Outlined;
 });
 
-// Add services to the container.
-builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
+// Configuração do Identity
+builder.Services.AddIdentityCore<IdentityUser>(options =>
+{
+    options.SignIn.RequireConfirmedAccount = true;
+})
+    .AddEntityFrameworkStores<MyMoneyContext>()
+    .AddSignInManager()
+    .AddDefaultTokenProviders();
 
-builder.Services.AddDbContextFactory<MyMoneyContext>(options =>
-    options.UseNpgsql(DefaultConnection ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.")));
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = IdentityConstants.ApplicationScheme;
+    options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+})
+    .AddIdentityCookies();
 
-builder.Services.AddQuickGridEntityFrameworkAdapter();
+// Configuração dos cookies
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Cookie.HttpOnly = true;
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+    options.LoginPath = "/account/login";
+    options.AccessDeniedPath = "/access-denied";
+    options.SlidingExpiration = true;
+});
+
+// Configuração de autenticação e estado
+builder.Services.AddCascadingAuthenticationState();
+builder.Services.AddScoped<IdentityUserAccessor>();
+builder.Services.AddScoped<IdentityRedirectManager>();
+builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
+
+// Configuração de email
+builder.Services.AddSingleton<IEmailSender<IdentityUser>, IdentityNoOpEmailSender>();
 
 
-
+// Configuração de controladores e outros serviços
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddControllers().AddNewtonsoftJson();
 
-builder.Services.AddHttpClient();
-
-builder.Services.AddHttpClient("API", client =>
-{
-    client.BaseAddress = new Uri("https://localhost:7152/");
-});
-
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+
+// Configuração do pipeline HTTP
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
-    app.UseMigrationsEndPoint();
 }
+
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 app.UseHttpsRedirection();
 
 app.UseStaticFiles();
+app.UseRouting();    
 app.UseAntiforgery();
 
-app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode();
+app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
+app.MapBlazorHub(config =>
+{
+    config.CloseOnAuthenticationExpiration = true;
+});
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+
+
+app.MapAdditionalIdentityEndpoints();
+
 
 app.Run();

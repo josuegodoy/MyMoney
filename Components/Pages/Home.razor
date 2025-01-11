@@ -1,7 +1,11 @@
 ﻿@page "/"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@using Microsoft.AspNetCore.Authorization
 @using Microsoft.EntityFrameworkCore
 @using MyMoney.Models
 @using MyMoney.Data
+@attribute [Authorize]
 @implements IAsyncDisposable
 @inject IDbContextFactory<MyMoney.Data.MyMoneyContext> DbFactory
 
