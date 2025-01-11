@@ -44,15 +44,20 @@ Welcome to MyMoney! This project is designed to provide an intuitive and efficie
 
 2. Set up the PostgreSQL database:
 
-   - Create a database in your Neon account.
-   - Apply the database schema from the `schema.sql` file in the repository.
+   - Create a database in your Neon account
+     or
+   - Create a local database for development
+  
 
 3. Configure the application:
 
    - Update the `appsettings.json` file with your PostgreSQL connection string.
+   - Apply the initial migration with Package Manager Console [HowTo](https://learn.microsoft.com/pt-br/ef/core/managing-schemas/migrations/managing?tabs=vs#add-a-migration).
 
 4. Run the application:
 
+- Open with Visual Studio Community
+  or
    ```bash
    dotnet run
    ```
@@ -64,6 +69,7 @@ Welcome to MyMoney! This project is designed to provide an intuitive and efficie
 - **Dashboard**: Gain insights into your financial health.
 - **Transactions**: Add, edit, or delete income and expense entries.
 - **Reports**: Generate detailed reports to analyze spending patterns.
+- **More Features** is coming!
 
 
 ## License
